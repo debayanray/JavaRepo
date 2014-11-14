@@ -2,9 +2,9 @@ package smart.vehicle.analytics.dao;
 
 public class Vehicle {
 	
-	private String make;
+	/*private String make;
 	private String model;
-	private String registration;
+	private String registration;*/
 	
 	private String sensorAFrontTouchDown;
 	private String sensorARearTouchDown;
@@ -18,7 +18,7 @@ public class Vehicle {
 	
 	private boolean isNorthBound;
 	
-	public String getMake() {
+	/*public String getMake() {
 		return make;
 	}
 	public void setMake(String make) {
@@ -35,34 +35,35 @@ public class Vehicle {
 	}
 	public void setRegistration(String registration) {
 		this.registration = registration;
-	}
+	}*/
+	
 	public String getSensorAFrontTouchDown() {
 		return sensorAFrontTouchDown;
 	}
 	public void setSensorAFrontTouchDown(String sensorAFrontTouchDown) {
 		this.sensorAFrontTouchDown = sensorAFrontTouchDown;
-		setCorrespondingLongValueFrom(this.sensorAFrontTouchDownEpoch, this.sensorAFrontTouchDown);
+		this.sensorAFrontTouchDownEpoch = getCorrespondingPremitiveLongValueFrom(this.sensorAFrontTouchDown);
 	}
 	public String getSensorARearTouchDown() {
 		return sensorARearTouchDown;
 	}
 	public void setSensorARearTouchDown(String sensorARearTouchDown) {
 		this.sensorARearTouchDown = sensorARearTouchDown;
-		setCorrespondingLongValueFrom(this.sensorARearTouchDownEpoch, this.sensorARearTouchDown);
+		this.sensorARearTouchDownEpoch = getCorrespondingPremitiveLongValueFrom(this.sensorARearTouchDown);
 	}
 	public String getSensorBFrontTouchDown() {
 		return sensorBFrontTouchDown;
 	}
 	public void setSensorBFrontTouchDown(String sensorBFrontTouchDown) {
 		this.sensorBFrontTouchDown = sensorBFrontTouchDown;
-		setCorrespondingLongValueFrom(this.sensorBFrontTouchDownEpoch, this.sensorBFrontTouchDown);
+		this.sensorBFrontTouchDownEpoch = getCorrespondingPremitiveLongValueFrom(this.sensorBFrontTouchDown);
 	}
 	public String getSensorBRearTouchDown() {
 		return sensorBRearTouchDown;
 	}
 	public void setSensorBRearTouchDown(String sensorBRearTouchDown) {
 		this.sensorBRearTouchDown = sensorBRearTouchDown;
-		setCorrespondingLongValueFrom(this.sensorBRearTouchDownEpoch, this.sensorBRearTouchDown);
+		this.sensorBRearTouchDownEpoch = getCorrespondingPremitiveLongValueFrom(this.sensorBRearTouchDown);
 	}
 	public long getSensorAFrontTouchDownEpoch() {
 		return sensorAFrontTouchDownEpoch;
@@ -86,7 +87,32 @@ public class Vehicle {
 	public void setNorthBound(boolean isNorthBound) {
 		this.isNorthBound = isNorthBound;
 	}
-	private void setCorrespondingLongValueFrom(long sensorTouchDownEpoch, String sensorTouchDown) {
-		sensorTouchDownEpoch = Long.valueOf(sensorTouchDown).longValue();
+	private long getCorrespondingPremitiveLongValueFrom(String sensorTouchDown) {
+		return Long.valueOf(sensorTouchDown).longValue();
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(isNorthBound() ? "Northbound " : "Southbound ");
+		sb.append("vehicle - ");
+		
+		sb.append("Sensor A [");
+		sb.append(sensorAFrontTouchDown);
+		sb.append(", ");
+		sb.append(sensorARearTouchDown);
+		sb.append("]");
+		
+		sb.append(", ");
+		
+		sb.append("Sensor B [");
+		sb.append(sensorBFrontTouchDown);
+		sb.append(", ");
+		sb.append(sensorBRearTouchDown);
+		sb.append("]");
+		
+		return sb.toString(); 
+	}
+	
+	
 }

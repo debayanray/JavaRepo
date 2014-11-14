@@ -23,8 +23,8 @@ public class SensorACaptureChecker {
 				vehicle.setSensorARearTouchDown(timeInfo);
 				
 				if(hasVehiclePassedThruSensorB(vehicle)) {
-					// set south bound
-					vehicle.setNorthBound(false);
+					// set south bound - no need, as already set when passed thru sensor B 
+					//vehicle.setNorthBound(false);
 					// add to list of rear axle passed thru sensor A
 					sensorGeneratedDataParser.getRearAxlePassedThruSensorACapturedVehicleData().add(vehicle);
 				}

@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import smart.vehicle.analytics.dao.Vehicle;
+
 public class SensorGeneratedDataParserTest {
 	
 	SensorGeneratedDataParser parser;
@@ -23,6 +25,9 @@ public class SensorGeneratedDataParserTest {
 	public void test() {
 		parser.setFileAsInput("D:/GitHubRepos/JavaRepo/SmartVehicleAnalytics/sensorData.txt");
 		parser.parse();
+		for (Vehicle vehicle : parser.getFullyCapturedVehicleData()) {
+			System.out.println(vehicle);
+		}
 	}
 
 }

@@ -19,7 +19,6 @@ public class SensorGeneratedDataParser {
 	private List<Vehicle> rearAxlePassedThruSensorACapturedVehicleData;
 	
 	private List<Vehicle> frontAxlePassedThruSensorBCapturedVehicleData;
-	private List<Vehicle> rearAxlePassedThruSensorBCapturedVehicleData;
 	
 	private List<Vehicle> fullyCapturedVehicleData;
 	
@@ -29,10 +28,7 @@ public class SensorGeneratedDataParser {
 	public SensorGeneratedDataParser() {
 		frontAxlePassedThruSensorACapturedVehicleData = new ArrayList<Vehicle>();
 		rearAxlePassedThruSensorACapturedVehicleData = new ArrayList<Vehicle>();
-		
 		frontAxlePassedThruSensorBCapturedVehicleData = new ArrayList<Vehicle>();
-		rearAxlePassedThruSensorBCapturedVehicleData = new ArrayList<Vehicle>();
-		 
 		fullyCapturedVehicleData = new ArrayList<Vehicle>();
 		
 		sensorBCaptureChecker = new SensorBCaptureChecker(this);
@@ -58,7 +54,6 @@ public class SensorGeneratedDataParser {
 					continue;
 				}
 				
-				//System.out.println(currentLine);
 				sensorBCaptureChecker.checkData(currentLine);
 				sensorACaptureChecker.checkData(currentLine);
 				
@@ -102,15 +97,6 @@ public class SensorGeneratedDataParser {
 		this.rearAxlePassedThruSensorACapturedVehicleData = rearAxlePassedThruSensorACapturedVehicleData;
 	}
 
-	public List<Vehicle> getRearAxlePassedThruSensorBCapturedVehicleData() {
-		return rearAxlePassedThruSensorBCapturedVehicleData;
-	}
-
-	public void setRearAxlePassedThruSensorBCapturedVehicleData(
-			List<Vehicle> rearAxlePassedThruSensorBCapturedVehicleData) {
-		this.rearAxlePassedThruSensorBCapturedVehicleData = rearAxlePassedThruSensorBCapturedVehicleData;
-	}
-
 	public List<Vehicle> getFrontAxlePassedThruSensorBCapturedVehicleData() {
 		return frontAxlePassedThruSensorBCapturedVehicleData;
 	}
@@ -127,7 +113,5 @@ public class SensorGeneratedDataParser {
 	public void setFullyCapturedVehicleData(List<Vehicle> fullyCapturedVehicleData) {
 		this.fullyCapturedVehicleData = fullyCapturedVehicleData;
 	}
-
 	
-
 }
