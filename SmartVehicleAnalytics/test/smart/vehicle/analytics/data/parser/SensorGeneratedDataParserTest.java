@@ -25,7 +25,7 @@ public class SensorGeneratedDataParserTest {
 	public void test() {
 		parser.setFileAsInput("D:/GitHubRepos/JavaRepo/SmartVehicleAnalytics/sensorData.txt");
 		parser.parse();
-		for (Vehicle vehicle : parser.getFullyCapturedVehicleData()) {
+		for (Vehicle vehicle : parser.getFullyCapturedVehicleList()) {
 			System.out.println(vehicle);
 		}
 	}

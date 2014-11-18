@@ -1,4 +1,4 @@
-package smart.vehicle.analytics.core;
+package smart.vehicle.analytics.data.capture;
 
 import static org.junit.Assert.*;
 import junit.framework.Assert;

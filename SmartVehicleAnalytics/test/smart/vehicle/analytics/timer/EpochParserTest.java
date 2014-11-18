@@ -29,7 +29,8 @@ public class EpochParserTest {
 	@Parameters({
 		"268981, 0, 0, 4, 28, 981, [1st day - 12:04:28 AM]", 
 		"269123, 0, 0, 4, 29, 123, [1st day - 12:04:29 AM]", 
-		"1089951, 0, 0, 18, 9, 951, [1st day - 12:18:09 AM]"
+		"1089951, 0, 0, 18, 9, 951, [1st day - 12:18:09 AM]", 
+		"86328902, 0, 23, 58, 48, 902, [1st day - 11:58:48 PM]"
 		
     })
 	public void validateDetailsOfTimeUnitInstanceReturnedWhenConvertIsInvoked(String millisecondsInString, 

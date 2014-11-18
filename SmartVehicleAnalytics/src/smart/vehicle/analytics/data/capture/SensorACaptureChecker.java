@@ -11,28 +11,28 @@ public class SensorACaptureChecker {
 		this.sensorGeneratedDataParser = sensorGeneratedDataParser;
 	}
 
-	public void checkData(String line) {
+	public void processData(String line) {
 		if(isSensorAData(line)) {
 			String timeInfo = stripSensorIdentifier(line);
 			
 			Vehicle vehicle = findAnyMatchingVehicleFromSensorACapturedData(timeInfo);
 			if(vehicle != null) {
 				// remove from list of front axle passed thru sensor A
-				sensorGeneratedDataParser.getFrontAxlePassedThruSensorACapturedVehicleData().remove(vehicle);
+				sensorGeneratedDataParser.getFrontAxlePassedThruSensorACapturedVehicleList().remove(vehicle);
 				// set the rear axle touch down on sensor A
 				vehicle.setSensorARearTouchDown(timeInfo);
 				
-				if(hasVehiclePassedThruSensorB(vehicle)) {
-					// set south bound - no need, as already set when passed thru sensor B 
-					//vehicle.setNorthBound(false);
+				if(hasVehicleFrontAxlePassedThruSensorB(vehicle)) {
+					// set south bound - no need though, as already set when passed thru sensor B 
+					vehicle.setNorthBound(false);
 					// add to list of rear axle passed thru sensor A
-					sensorGeneratedDataParser.getRearAxlePassedThruSensorACapturedVehicleData().add(vehicle);
+					sensorGeneratedDataParser.getRearAxlePassedThruSensorACapturedVehicleList().add(vehicle);
 				}
 				else {
 					// set north bound
 					vehicle.setNorthBound(true);
 					// add to list of fully captured vehicle data
-					sensorGeneratedDataParser.getFullyCapturedVehicleData().add(vehicle);
+					sensorGeneratedDataParser.getFullyCapturedVehicleList().add(vehicle);
 				}
 			}
 			else {
@@ -46,21 +46,17 @@ public class SensorACaptureChecker {
 				// set the front axle touch down on sensor A
 				vehicle.setSensorAFrontTouchDown(timeInfo);
 				// add to list of front axle passed thru sensor A
-				sensorGeneratedDataParser.getFrontAxlePassedThruSensorACapturedVehicleData().add(vehicle);
+				sensorGeneratedDataParser.getFrontAxlePassedThruSensorACapturedVehicleList().add(vehicle);
 			}
 			
 		}
 	}
-	
-	private boolean hasVehiclePassedThruSensorB(Vehicle vehicle) {
-		 return sensorGeneratedDataParser.getFrontAxlePassedThruSensorBCapturedVehicleData().contains(vehicle);
-	}
 
-	private Vehicle findAnyMatchingVehicleFromSensorACapturedData(String timeInfo) {
+	public Vehicle findAnyMatchingVehicleFromSensorACapturedData(String timeInfo) {
 		long timeInfoEpoch = Long.valueOf(timeInfo).longValue();
 		Vehicle match = null;
 		
-		for (Vehicle vehicle : sensorGeneratedDataParser.getFrontAxlePassedThruSensorACapturedVehicleData()) {
+		for (Vehicle vehicle : sensorGeneratedDataParser.getFrontAxlePassedThruSensorACapturedVehicleList()) {
 			if(isWithinRangeOfRearAxlePassing(vehicle, timeInfoEpoch)) {
 				match = vehicle;
 				break;
@@ -70,13 +66,17 @@ public class SensorACaptureChecker {
 		return match;
 	}
 	
-	private boolean isWithinRangeOfRearAxlePassing(Vehicle vehicle, long timeInfoEpoch) {
+	public boolean isWithinRangeOfRearAxlePassing(Vehicle vehicle, long timeInfoEpoch) {
 		long floorTimeEpoch = vehicle.getSensorAFrontTouchDownEpoch() + 120;
 		long ceilingTimeEpoch = vehicle.getSensorAFrontTouchDownEpoch() + 180;
 		if((timeInfoEpoch > floorTimeEpoch) && (timeInfoEpoch < ceilingTimeEpoch)) {
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean hasVehicleFrontAxlePassedThruSensorB(Vehicle vehicle) {
+		 return sensorGeneratedDataParser.getFrontAxlePassedThruSensorBCapturedVehicleList().contains(vehicle);
 	}
 	
 	public String stripSensorIdentifier(String line) {
