@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import smart.vehicle.analytics.dao.Vehicle;
+import smart.vehicle.analytics.data.store.CapturedVehicleDataStore;
 
 public class SensorGeneratedDataParserTest {
 	
@@ -25,9 +26,11 @@ public class SensorGeneratedDataParserTest {
 	public void test() {
 		parser.setFileAsInput("D:/GitHubRepos/JavaRepo/SmartVehicleAnalytics/sensorData.txt");
 		parser.parse();
-		for (Vehicle vehicle : parser.getFullyCapturedVehicleList()) {
-			System.out.println(vehicle);
-		}
+		
+		//System.out.println(parser.getFullyCapturedVehicleList());
+		//System.out.println(parser.getDayWiseCapturedVehicleData());
+		System.out.println(CapturedVehicleDataStore.getInstance().getDayWiseCapturedVehicleData());
+		
 	}
 
 }

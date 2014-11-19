@@ -21,22 +21,16 @@ import smart.vehicle.analytics.dao.Vehicle;
 import smart.vehicle.analytics.data.parser.SensorGeneratedDataParser;
 
 @RunWith(JUnitParamsRunner.class)
-public class SensorACaptureCheckerTest {
+public class SensorACaptureProcessorTest {
 	
 	@Mock
 	SensorGeneratedDataParser sensorGeneratedDataParser;
-	SensorACaptureChecker sensorACaptureChecker;
-	SensorACaptureChecker sensorACaptureCheckerSpy;
+	SensorACaptureProcessor sensorACaptureProcessorSpy;
 
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		sensorACaptureChecker = new SensorACaptureChecker(sensorGeneratedDataParser);
-		sensorACaptureCheckerSpy = Mockito.spy(sensorACaptureChecker);
-	}
-
-	@After
-	public void tearDown() throws Exception {
+		sensorACaptureProcessorSpy = Mockito.spy(new SensorACaptureProcessor(sensorGeneratedDataParser));
 	}
 
 	@Test
@@ -48,18 +42,18 @@ public class SensorACaptureCheckerTest {
 	public void stripSensorIdentifierCalledSuitablyWhileDataProcessingHappensAndDataIsMeantForSensorAProcessor(
 			String lineToBeProcessed, int numberOfTimes) {
 		
-		sensorACaptureCheckerSpy.processData(lineToBeProcessed);
-		Mockito.verify(sensorACaptureCheckerSpy, Mockito.times(numberOfTimes)).stripSensorIdentifier(lineToBeProcessed);
+		sensorACaptureProcessorSpy.processData(lineToBeProcessed);
+		Mockito.verify(sensorACaptureProcessorSpy, Mockito.times(numberOfTimes)).stripSensorIdentifier(lineToBeProcessed);
 	}
 	
 	@Test
 	public void newVehicleCreatedAndAddedToFrontAxlePassedThruSensorACapturedVehicleListIfNOMatchFound() {
 		// Given
-		Mockito.doReturn(null).when(sensorACaptureCheckerSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
+		Mockito.doReturn(null).when(sensorACaptureProcessorSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
 		List<Vehicle> myOwnList = Mockito.mock(List.class);
-		Mockito.when(sensorGeneratedDataParser.getFrontAxlePassedThruSensorACapturedVehicleList()).thenReturn(myOwnList);
+		Mockito.when(sensorACaptureProcessorSpy.getFrontAxlePassedThruSensorACapturedVehicleList()).thenReturn(myOwnList);
 		// When
-		sensorACaptureCheckerSpy.processData("A1089807");
+		sensorACaptureProcessorSpy.processData("A1089807");
 		// Then
 		Mockito.verify(myOwnList).add(Mockito.any(Vehicle.class));
 	}
@@ -68,11 +62,11 @@ public class SensorACaptureCheckerTest {
 	public void matchingVehicleGetsRemovedFromFrontAxlePassedThruSensorACapturedVehicleListIfMatchFound() {
 		// Given
 		Vehicle myVehicle = Mockito.mock(Vehicle.class);
-		Mockito.doReturn(myVehicle).when(sensorACaptureCheckerSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
+		Mockito.doReturn(myVehicle).when(sensorACaptureProcessorSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
 		List<Vehicle> myOwnList = Mockito.mock(List.class);
-		Mockito.when(sensorGeneratedDataParser.getFrontAxlePassedThruSensorACapturedVehicleList()).thenReturn(myOwnList);
+		Mockito.when(sensorACaptureProcessorSpy.getFrontAxlePassedThruSensorACapturedVehicleList()).thenReturn(myOwnList);
 		// When
-		sensorACaptureCheckerSpy.processData("A1089807");
+		sensorACaptureProcessorSpy.processData("A1089807");
 		// Then
 		Mockito.verify(myOwnList).remove(myVehicle);
 	}
@@ -81,9 +75,9 @@ public class SensorACaptureCheckerTest {
 	public void setRearAxleTimeInfoForMatchingVehicleIfMatchFoundFromFrontAxlePassedThruSensorACapturedVehicleList() {
 		// Given
 		Vehicle myVehicle = Mockito.mock(Vehicle.class);
-		Mockito.doReturn(myVehicle).when(sensorACaptureCheckerSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
+		Mockito.doReturn(myVehicle).when(sensorACaptureProcessorSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
 		// When
-		sensorACaptureCheckerSpy.processData("A1089807");
+		sensorACaptureProcessorSpy.processData("A1089807");
 		// Then
 		Mockito.verify(myVehicle).setSensorARearTouchDown("1089807");
 	}
@@ -92,10 +86,10 @@ public class SensorACaptureCheckerTest {
 	public void setMatchingVehicleSouthboundIfMatchFoundInFrontAxle_A_List_And_AlreadyCapturedInSensorB() {
 		// Given
 		Vehicle myVehicle = Mockito.mock(Vehicle.class);
-		Mockito.doReturn(myVehicle).when(sensorACaptureCheckerSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
-		Mockito.doReturn(true).when(sensorACaptureCheckerSpy).hasVehicleFrontAxlePassedThruSensorB(myVehicle);
+		Mockito.doReturn(myVehicle).when(sensorACaptureProcessorSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
+		Mockito.doReturn(true).when(sensorACaptureProcessorSpy).hasSensorBCapturedVehicleFrontAxle(myVehicle);
 		// When
-		sensorACaptureCheckerSpy.processData("A1089807");
+		sensorACaptureProcessorSpy.processData("A1089807");
 		// Then
 		Mockito.verify(myVehicle).setNorthBound(false);
 	}
@@ -104,12 +98,12 @@ public class SensorACaptureCheckerTest {
 	public void matchingVehicleGetsAddedToRearAxle_A_ListIfMatchFoundInFrontAxle_A_List_And_AlreadyCapturedInSensorB() {
 		// Given
 		Vehicle myVehicle = Mockito.mock(Vehicle.class);
-		Mockito.doReturn(myVehicle).when(sensorACaptureCheckerSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
-		Mockito.doReturn(true).when(sensorACaptureCheckerSpy).hasVehicleFrontAxlePassedThruSensorB(myVehicle);
+		Mockito.doReturn(myVehicle).when(sensorACaptureProcessorSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
+		Mockito.doReturn(true).when(sensorACaptureProcessorSpy).hasSensorBCapturedVehicleFrontAxle(myVehicle);
 		List<Vehicle> myOwnList = Mockito.mock(List.class);
-		Mockito.when(sensorGeneratedDataParser.getRearAxlePassedThruSensorACapturedVehicleList()).thenReturn(myOwnList);
+		Mockito.when(sensorACaptureProcessorSpy.getRearAxlePassedThruSensorACapturedVehicleList()).thenReturn(myOwnList);
 		// When
-		sensorACaptureCheckerSpy.processData("A1089807");
+		sensorACaptureProcessorSpy.processData("A1089807");
 		// Then
 		Mockito.verify(myOwnList).add(myVehicle);
 	}
@@ -118,10 +112,10 @@ public class SensorACaptureCheckerTest {
 	public void setMatchingVehicleNorthboundIfMatchFoundInFrontAxle_A_List_And_NOTCapturedInSensorB() {
 		// Given
 		Vehicle myVehicle = Mockito.mock(Vehicle.class);
-		Mockito.doReturn(myVehicle).when(sensorACaptureCheckerSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
-		Mockito.doReturn(false).when(sensorACaptureCheckerSpy).hasVehicleFrontAxlePassedThruSensorB(myVehicle);
+		Mockito.doReturn(myVehicle).when(sensorACaptureProcessorSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
+		Mockito.doReturn(false).when(sensorACaptureProcessorSpy).hasSensorBCapturedVehicleFrontAxle(myVehicle);
 		// When
-		sensorACaptureCheckerSpy.processData("A1089807");
+		sensorACaptureProcessorSpy.processData("A1089807");
 		// Then
 		Mockito.verify(myVehicle).setNorthBound(true);
 	}
@@ -130,12 +124,12 @@ public class SensorACaptureCheckerTest {
 	public void matchingVehicleGetsAddedToFullyCapturedVehicleListIfMatchFoundInFrontAxle_A_List_And_NOTCapturedInSensorB() {
 		// Given
 		Vehicle myVehicle = Mockito.mock(Vehicle.class);
-		Mockito.doReturn(myVehicle).when(sensorACaptureCheckerSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
-		Mockito.doReturn(false).when(sensorACaptureCheckerSpy).hasVehicleFrontAxlePassedThruSensorB(myVehicle);
+		Mockito.doReturn(myVehicle).when(sensorACaptureProcessorSpy).findAnyMatchingVehicleFromSensorACapturedData(Mockito.anyString());
+		Mockito.doReturn(false).when(sensorACaptureProcessorSpy).hasSensorBCapturedVehicleFrontAxle(myVehicle);
 		List<Vehicle> myOwnList = Mockito.mock(List.class);
-		Mockito.when(sensorGeneratedDataParser.getFullyCapturedVehicleList()).thenReturn(myOwnList);
+		Mockito.when(sensorGeneratedDataParser.getCurrentDayCapturedVehicleList()).thenReturn(myOwnList);
 		// When
-		sensorACaptureCheckerSpy.processData("A1089807");
+		sensorACaptureProcessorSpy.processData("A1089807");
 		// Then
 		Mockito.verify(myOwnList).add(myVehicle);
 	}
@@ -144,14 +138,14 @@ public class SensorACaptureCheckerTest {
 	public void findMatchingVehicleReturns_NULL_IfNoVehicleFoundWithinRangeOfRearAxlePassing() {
 		// Given
 		Vehicle myVehicle = Mockito.mock(Vehicle.class);
-		Mockito.doReturn(false).when(sensorACaptureCheckerSpy).isWithinRangeOfRearAxlePassing(Mockito.any(Vehicle.class), Mockito.anyLong());
+		Mockito.doReturn(false).when(sensorACaptureProcessorSpy).isWithinRangeOfRearAxlePassing(Mockito.any(Vehicle.class), Mockito.anyLong());
 		List<Vehicle> myOwnList = new ArrayList<Vehicle>();
 		myOwnList.add(new Vehicle());
 		myOwnList.add(new Vehicle());
 		myOwnList.add(new Vehicle());
-		Mockito.when(sensorGeneratedDataParser.getFrontAxlePassedThruSensorACapturedVehicleList()).thenReturn(myOwnList);
+		Mockito.when(sensorACaptureProcessorSpy.getFrontAxlePassedThruSensorACapturedVehicleList()).thenReturn(myOwnList);
 		// When
-		Vehicle match = sensorACaptureCheckerSpy.findAnyMatchingVehicleFromSensorACapturedData("1089807");
+		Vehicle match = sensorACaptureProcessorSpy.findAnyMatchingVehicleFromSensorACapturedData("1089807");
 		// Then
 		Assert.assertNull(match);
 	}
@@ -160,14 +154,14 @@ public class SensorACaptureCheckerTest {
 	public void findMatchingVehicleReturnsMatchedVehicleIfVehicleIsWithinRangeOfRearAxlePassing() {
 		// Given
 		Vehicle myVehicle = Mockito.mock(Vehicle.class);
-		Mockito.doReturn(true).when(sensorACaptureCheckerSpy).isWithinRangeOfRearAxlePassing(Mockito.eq(myVehicle), Mockito.anyLong());
+		Mockito.doReturn(true).when(sensorACaptureProcessorSpy).isWithinRangeOfRearAxlePassing(Mockito.eq(myVehicle), Mockito.anyLong());
 		List<Vehicle> myOwnList = new ArrayList<Vehicle>();
 		myOwnList.add(new Vehicle());
 		myOwnList.add(myVehicle); // mock vehicle
 		myOwnList.add(new Vehicle());
-		Mockito.when(sensorGeneratedDataParser.getFrontAxlePassedThruSensorACapturedVehicleList()).thenReturn(myOwnList);
+		Mockito.when(sensorACaptureProcessorSpy.getFrontAxlePassedThruSensorACapturedVehicleList()).thenReturn(myOwnList);
 		// When
-		Vehicle match = sensorACaptureCheckerSpy.findAnyMatchingVehicleFromSensorACapturedData("1089807");
+		Vehicle match = sensorACaptureProcessorSpy.findAnyMatchingVehicleFromSensorACapturedData("1089807");
 		// Then
 		Assert.assertEquals(myVehicle, match);
 	}

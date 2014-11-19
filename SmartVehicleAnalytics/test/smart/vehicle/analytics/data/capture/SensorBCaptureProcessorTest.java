@@ -11,19 +11,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import smart.vehicle.analytics.data.capture.SensorBCaptureChecker;
+import smart.vehicle.analytics.data.capture.SensorBCaptureProcessor;
 import smart.vehicle.analytics.data.parser.SensorGeneratedDataParser;
 
 @RunWith(JUnitParamsRunner.class)
-public class SensorBCaptureCheckerTest {
+public class SensorBCaptureProcessorTest {
 	
-	private SensorBCaptureChecker sensorBCaptureChecker;
+	private SensorBCaptureProcessor sensorBCaptureProcessor;
 	@Mock
 	private SensorGeneratedDataParser sensorGeneratedDataParser;
 	
 	@Before
 	public void setUp() throws Exception {
-		sensorBCaptureChecker = new SensorBCaptureChecker(sensorGeneratedDataParser);
+		sensorBCaptureProcessor = new SensorBCaptureProcessor(sensorGeneratedDataParser);
 	}
 
 	@After
@@ -37,7 +37,7 @@ public class SensorBCaptureCheckerTest {
 		"A1089807, 1089807"
     })
 	public void testStripSensorIdentifier(String inputData, String expectedStrippedTimeInfo) {
-		String timeInfo = sensorBCaptureChecker.stripSensorIdentifier(inputData);
+		String timeInfo = sensorBCaptureProcessor.stripSensorIdentifier(inputData);
 		Assert.assertEquals(expectedStrippedTimeInfo, timeInfo);
 	}
 
@@ -51,7 +51,7 @@ public class SensorBCaptureCheckerTest {
 		"true, BXXXXXX"
     })
 	public void testIsSensorBData(boolean isSensorBData, String inputData) {
-		Assert.assertEquals(isSensorBData, sensorBCaptureChecker.isSensorBData(inputData));
+		Assert.assertEquals(isSensorBData, sensorBCaptureProcessor.isSensorBData(inputData));
 	}
 
 }

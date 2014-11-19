@@ -1,30 +1,48 @@
 package smart.vehicle.analytics.data.capture;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import smart.vehicle.analytics.dao.Vehicle;
 import smart.vehicle.analytics.data.parser.SensorGeneratedDataParser;
 
-public class SensorBCaptureChecker {
+public class SensorBCaptureProcessor {
 
 	private SensorGeneratedDataParser sensorGeneratedDataParser;
+	private List<Vehicle> frontAxlePassedThruSensorBCapturedVehicleList;
 
-	public SensorBCaptureChecker(SensorGeneratedDataParser sensorGeneratedDataParser) {
+	public SensorBCaptureProcessor(SensorGeneratedDataParser sensorGeneratedDataParser) {
 		this.sensorGeneratedDataParser = sensorGeneratedDataParser;
+		initCapturedVehicleList();
 	}
-
-	public void checkData(String line) {
+	
+	private void initCapturedVehicleList() {
+		frontAxlePassedThruSensorBCapturedVehicleList = new ArrayList<Vehicle>();
+	}
+	
+	public void resetCapturedVehicleList() {
+		frontAxlePassedThruSensorBCapturedVehicleList.clear();
+	}
+	
+	public void nullifyCapturedVehicleList() {
+		frontAxlePassedThruSensorBCapturedVehicleList.clear();
+		frontAxlePassedThruSensorBCapturedVehicleList = null;
+	}
+	
+	public void processData(String line) {
 		if(isSensorBData(line)) {
 			String timeInfo = stripSensorIdentifier(line);
 			
 			Vehicle matchedVehicle = findAnyMatchingVehicleFromSensorAAndSenorBCapturedData(timeInfo);
 			if(matchedVehicle != null) {
 				// remove from list of front axle passed thru sensor B
-				sensorGeneratedDataParser.getFrontAxlePassedThruSensorBCapturedVehicleList().remove(matchedVehicle);
+				getFrontAxlePassedThruSensorBCapturedVehicleList().remove(matchedVehicle);
 				// remove from list of rear axle passed thru sensor A
 				sensorGeneratedDataParser.getRearAxlePassedThruSensorACapturedVehicleList().remove(matchedVehicle);
 				// set the rear axle touch down on sensor B
 				matchedVehicle.setSensorBRearTouchDown(timeInfo);
 				// add to list of fully captured vehicle data
-				sensorGeneratedDataParser.getFullyCapturedVehicleList().add(matchedVehicle);
+				sensorGeneratedDataParser.getCurrentDayCapturedVehicleList().add(matchedVehicle);
 			}
 			else {
 				matchedVehicle = findAnyMatchingVehicleFromSensorACapturedData(timeInfo);
@@ -34,7 +52,7 @@ public class SensorBCaptureChecker {
 					// set south bound
 					matchedVehicle.setNorthBound(false);
 					// add to list of front axle passed thru sensor B
-					sensorGeneratedDataParser.getFrontAxlePassedThruSensorBCapturedVehicleList().add(matchedVehicle);
+					getFrontAxlePassedThruSensorBCapturedVehicleList().add(matchedVehicle);
 				}
 			}
 			
@@ -45,12 +63,12 @@ public class SensorBCaptureChecker {
 		long timeInfoEpoch = Long.valueOf(timeInfo).longValue();
 		Vehicle match = null;
 		
-		for (Vehicle vehicle : sensorGeneratedDataParser.getFrontAxlePassedThruSensorBCapturedVehicleList()) {
+		for (Vehicle vehicle : getFrontAxlePassedThruSensorBCapturedVehicleList()) {
 			if(isWithinRangeOfRearAxlePassing(vehicle, timeInfoEpoch)) {
 				match = vehicle;
 				
 				// to be doubly sure
-				if(hasSensorACapturedRearAxleOfVehicle(match)) {
+				if(hasSensorACapturedVehicleRearAxle(match)) {
 					break;
 				}
 				else {
@@ -62,7 +80,7 @@ public class SensorBCaptureChecker {
 		return match;
 	}
 	
-	private boolean hasSensorACapturedRearAxleOfVehicle(Vehicle vehicle) {
+	private boolean hasSensorACapturedVehicleRearAxle(Vehicle vehicle) {
 		return sensorGeneratedDataParser.getRearAxlePassedThruSensorACapturedVehicleList().contains(vehicle);
 	}
 
@@ -81,7 +99,7 @@ public class SensorBCaptureChecker {
 	}
 
 	private boolean isWithinRangeOfRearAxlePassing(Vehicle vehicle, long timeInfoEpoch) {
-		long floorTimeEpoch = vehicle.getSensorBFrontTouchDownEpoch() + 120;
+		long floorTimeEpoch = vehicle.getSensorBFrontTouchDownEpoch() + 100;
 		long ceilingTimeEpoch = vehicle.getSensorBFrontTouchDownEpoch() + 180;
 		if((timeInfoEpoch > floorTimeEpoch) && (timeInfoEpoch < ceilingTimeEpoch)) {
 			return true;
@@ -107,6 +125,15 @@ public class SensorBCaptureChecker {
 
 	public boolean isSensorBData(String line) {
 		return line.startsWith("B");
+	}
+
+	public List<Vehicle> getFrontAxlePassedThruSensorBCapturedVehicleList() {
+		return frontAxlePassedThruSensorBCapturedVehicleList;
+	}
+
+	public void setFrontAxlePassedThruSensorBCapturedVehicleList(
+			List<Vehicle> frontAxlePassedThruSensorBCapturedVehicleList) {
+		this.frontAxlePassedThruSensorBCapturedVehicleList = frontAxlePassedThruSensorBCapturedVehicleList;
 	}
 
 }

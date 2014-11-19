@@ -8,31 +8,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import smart.vehicle.analytics.dao.Vehicle;
-import smart.vehicle.analytics.data.capture.SensorACaptureChecker;
-import smart.vehicle.analytics.data.capture.SensorBCaptureChecker;
+import smart.vehicle.analytics.data.capture.SensorACaptureProcessor;
+import smart.vehicle.analytics.data.capture.SensorBCaptureProcessor;
+import smart.vehicle.analytics.data.store.CapturedVehicleDataStore;
 
 public class SensorGeneratedDataParser {
 	
 	private BufferedReader bufferedReader;
 	
-	private List<Vehicle> frontAxlePassedThruSensorACapturedVehicleList;
-	private List<Vehicle> rearAxlePassedThruSensorACapturedVehicleList;
+	private SensorBCaptureProcessor sensorBCaptureProcessor;
+	private SensorACaptureProcessor sensorACaptureProcessor;
 	
-	private List<Vehicle> frontAxlePassedThruSensorBCapturedVehicleList;
-	
-	private List<Vehicle> fullyCapturedVehicleList;
-	
-	private SensorBCaptureChecker sensorBCaptureChecker;
-	private SensorACaptureChecker sensorACaptureChecker;
+	private int currentDay = 0;
+	private List<Vehicle> currentDayCapturedVehicleList;
+	private CapturedVehicleDataStore capturedVehicleDataStore;
 	
 	public SensorGeneratedDataParser() {
-		frontAxlePassedThruSensorACapturedVehicleList = new ArrayList<Vehicle>();
-		rearAxlePassedThruSensorACapturedVehicleList = new ArrayList<Vehicle>();
-		frontAxlePassedThruSensorBCapturedVehicleList = new ArrayList<Vehicle>();
-		fullyCapturedVehicleList = new ArrayList<Vehicle>();
+		sensorBCaptureProcessor = new SensorBCaptureProcessor(this);
+		sensorACaptureProcessor = new SensorACaptureProcessor(this);
 		
-		sensorBCaptureChecker = new SensorBCaptureChecker(this);
-		sensorACaptureChecker = new SensorACaptureChecker(this);
+		capturedVehicleDataStore = CapturedVehicleDataStore.getInstance();
+		currentDayCapturedVehicleList = new ArrayList<Vehicle>();
 	}
 	
 	public void setFileAsInput(String fileName) {
@@ -46,6 +42,7 @@ public class SensorGeneratedDataParser {
 	public void parse() {
 		String currentLine;
 		try {
+			long lastCapturedEpoch = 0;
 			while((currentLine = bufferedReader.readLine()) != null) {
 				// trim the read line
 				currentLine = currentLine.trim();
@@ -54,19 +51,64 @@ public class SensorGeneratedDataParser {
 					continue;
 				}
 				
-				sensorBCaptureChecker.checkData(currentLine);
-				sensorACaptureChecker.processData(currentLine);
+				String timeInfo = stripSensorIdentifier(currentLine);
+				long currentCapturedEpoch = Long.valueOf(timeInfo).longValue();
+				if(currentCapturedEpoch > lastCapturedEpoch) {
+					// logic - for the same day
+					// nothing to do...
+				}
+				else {
+					// logic - for the next day
+					switchToNextDayDataCapture();
+				}
+				lastCapturedEpoch = currentCapturedEpoch;
 				
-				
-				
-				
-				
-				
+				sensorACaptureProcessor.processData(currentLine);
+				sensorBCaptureProcessor.processData(currentLine);
 				
 			}
+			// done with complete parsing
+			doneWithCompleteDataCapture();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void switchToNextDayDataCapture() {
+		saveCurrentDayVehicleDataInDataStore();
+		currentDay++;
+		reset();
+	}
+	
+	private void doneWithCompleteDataCapture() {
+		saveCurrentDayVehicleDataInDataStore();
+		doPostDone();
+	}
+	
+	private void saveCurrentDayVehicleDataInDataStore() {
+		capturedVehicleDataStore.addDataForDay(currentDayCapturedVehicleList, currentDay);
+	}
+	
+	private void reset() {
+		sensorACaptureProcessor.resetCapturedVehicleList();
+		sensorBCaptureProcessor.resetCapturedVehicleList();
+		
+		currentDayCapturedVehicleList = new ArrayList<Vehicle>();
+	}
+
+	private void doPostDone() {
+		sensorACaptureProcessor.nullifyCapturedVehicleList();
+		sensorBCaptureProcessor.nullifyCapturedVehicleList();
+		
+		currentDayCapturedVehicleList = null;
+	}
+	
+	private String stripSensorIdentifier(String line) {
+		if(line.startsWith("A") || line.startsWith("B")) {
+			return line.substring(1);
+		}
+		return line;
 	}
 
 	public BufferedReader getBufferedReader() {
@@ -77,43 +119,25 @@ public class SensorGeneratedDataParser {
 		this.bufferedReader = bufferedReader;
 	}
 
+	public List<Vehicle> getCurrentDayCapturedVehicleList() {
+		return currentDayCapturedVehicleList;
+	}
+
+	public void setCurrentDayCapturedVehicleList(List<Vehicle> currentDayCapturedVehicleList) {
+		this.currentDayCapturedVehicleList = currentDayCapturedVehicleList;
+	}
+
 	public List<Vehicle> getFrontAxlePassedThruSensorACapturedVehicleList() {
-		return frontAxlePassedThruSensorACapturedVehicleList;
+		return sensorACaptureProcessor.getFrontAxlePassedThruSensorACapturedVehicleList();
 	}
-
-	public void setFrontAxlePassedThruSensorACapturedVehicleList(
-			List<Vehicle> frontAxlePassedThruSensorACapturedVehicleList) {
-		this.frontAxlePassedThruSensorACapturedVehicleList = frontAxlePassedThruSensorACapturedVehicleList;
-	}
-
+	
 	public List<Vehicle> getRearAxlePassedThruSensorACapturedVehicleList() {
-		return rearAxlePassedThruSensorACapturedVehicleList;
-	}
-
-	public void setRearAxlePassedThruSensorACapturedVehicleList(
-			List<Vehicle> rearAxlePassedThruSensorACapturedVehicleList) {
-		this.rearAxlePassedThruSensorACapturedVehicleList = rearAxlePassedThruSensorACapturedVehicleList;
+		return sensorACaptureProcessor.getRearAxlePassedThruSensorACapturedVehicleList();
 	}
 
 	public List<Vehicle> getFrontAxlePassedThruSensorBCapturedVehicleList() {
-		return frontAxlePassedThruSensorBCapturedVehicleList;
+		return sensorBCaptureProcessor.getFrontAxlePassedThruSensorBCapturedVehicleList();
 	}
-
-	public void setFrontAxlePassedThruSensorBCapturedVehicleList(
-			List<Vehicle> frontAxlePassedThruSensorBCapturedVehicleList) {
-		this.frontAxlePassedThruSensorBCapturedVehicleList = frontAxlePassedThruSensorBCapturedVehicleList;
-	}
-
-	public List<Vehicle> getFullyCapturedVehicleList() {
-		return fullyCapturedVehicleList;
-	}
-
-	public void setFullyCapturedVehicleList(List<Vehicle> fullyCapturedVehicleList) {
-		this.fullyCapturedVehicleList = fullyCapturedVehicleList;
-	}
-	
-	
-
 	
 	
 }
