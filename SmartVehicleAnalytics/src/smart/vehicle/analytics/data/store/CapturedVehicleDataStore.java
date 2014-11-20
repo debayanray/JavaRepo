@@ -1,5 +1,7 @@
 package smart.vehicle.analytics.data.store;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,11 +28,16 @@ public class CapturedVehicleDataStore {
 		return dayWiseCapturedVehicleData;
 	}
 
-	public void setDayWiseCapturedVehicleData(
-			HashMap<Integer, List<Vehicle>> dayWiseCapturedVehicleData) {
+	public void setDayWiseCapturedVehicleData(HashMap<Integer, List<Vehicle>> dayWiseCapturedVehicleData) {
 		this.dayWiseCapturedVehicleData = dayWiseCapturedVehicleData;
 	}
 	
-	
+	public List<Vehicle> getAllCapturedVehicleData() {
+		ArrayList<Vehicle> allVehicles = new ArrayList<Vehicle>();
+		for(Collection<Vehicle> vehicles: dayWiseCapturedVehicleData.values()) {
+			allVehicles.addAll(vehicles);
+		}
+		return allVehicles;
+	}
 
 }

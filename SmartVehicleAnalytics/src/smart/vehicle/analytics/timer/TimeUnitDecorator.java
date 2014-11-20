@@ -10,7 +10,7 @@ public class TimeUnitDecorator {
 
 	public String getDayString() {
 		String day = "";
-		switch (Long.valueOf(theTimeUnit.getDays()).intValue()) {
+		switch (Long.valueOf(theTimeUnit.getDay()).intValue()) {
 		case 0:
 			day = "1st day";
 			break;

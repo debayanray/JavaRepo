@@ -21,22 +21,22 @@ public class EpochParser {
 		TimeUnit timeUnit = new TimeUnit();
 		
 		if(milliseconds > DAY) {
-			timeUnit.setDays(milliseconds / DAY);
+			timeUnit.setDay((int) (milliseconds / DAY));
 			milliseconds %= DAY;
 		}
 		if(milliseconds > HOUR) {
-			timeUnit.setHours(milliseconds / HOUR);
+			timeUnit.setHours((int) (milliseconds / HOUR));
 			milliseconds %= HOUR;
 		}
 		if(milliseconds > MINUTE) {
-			timeUnit.setMinutes(milliseconds / MINUTE);
+			timeUnit.setMinutes((int) (milliseconds / MINUTE));
 			milliseconds %= MINUTE;
 		}
 		if(milliseconds > SECOND) {
-			timeUnit.setSeconds(milliseconds / SECOND);
+			timeUnit.setSeconds((int) (milliseconds / SECOND));
 			milliseconds %= SECOND;
 		}
-		timeUnit.setMillis(milliseconds);
+		timeUnit.setMilliseconds((int) milliseconds);
 		
 		return timeUnit;
 	}

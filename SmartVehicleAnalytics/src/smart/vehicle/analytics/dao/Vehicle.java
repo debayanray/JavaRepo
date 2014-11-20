@@ -1,5 +1,9 @@
 package smart.vehicle.analytics.dao;
 
+import smart.vehicle.analytics.exceptions.InvalidInputTypeException;
+import smart.vehicle.analytics.timer.EpochParser;
+import smart.vehicle.analytics.timer.TimeUnit;
+
 public class Vehicle {
 	
 	/*private String make;
@@ -17,7 +21,14 @@ public class Vehicle {
 	private long sensorBRearTouchDownEpoch;
 	
 	private boolean isNorthBound;
+	private TimeUnit passingTime; // first touch down on sensor A
 	
+	
+	
+	public Vehicle() {
+		
+	}
+
 	/*public String getMake() {
 		return make;
 	}
@@ -43,6 +54,12 @@ public class Vehicle {
 	public void setSensorAFrontTouchDown(String sensorAFrontTouchDown) {
 		this.sensorAFrontTouchDown = sensorAFrontTouchDown;
 		this.sensorAFrontTouchDownEpoch = getCorrespondingPremitiveLongValueFrom(this.sensorAFrontTouchDown);
+		
+		try {
+			passingTime = new EpochParser().convert(sensorAFrontTouchDown);
+		} catch (InvalidInputTypeException e) {
+			e.printStackTrace();
+		}
 	}
 	public String getSensorARearTouchDown() {
 		return sensorARearTouchDown;
@@ -84,9 +101,15 @@ public class Vehicle {
 	public boolean isNorthBound() {
 		return isNorthBound;
 	}
+	
 	public void setNorthBound(boolean isNorthBound) {
 		this.isNorthBound = isNorthBound;
 	}
+	
+	public TimeUnit getPassingTime() {
+		return passingTime;
+	}
+
 	private long getCorrespondingPremitiveLongValueFrom(String sensorTouchDown) {
 		return Long.valueOf(sensorTouchDown).longValue();
 	}

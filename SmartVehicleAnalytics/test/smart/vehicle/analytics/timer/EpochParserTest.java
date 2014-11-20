@@ -45,12 +45,12 @@ public class EpochParserTest {
 		assertEquals("[1st day - 12:04:29 AM]", atime.toPrettyString());*/
 		
 		TimeUnit atime = epochParser.convert(millisecondsInString);
-		assertEquals(days, atime.getDays());
+		assertEquals(days, atime.getDay());
 		assertEquals(hours, atime.getHours());
 		assertEquals(minutes, atime.getMinutes());
 		assertEquals(seconds, atime.getSeconds());
-		assertEquals(milliseconds, atime.getMillis());
-		assertEquals(prettyTimestamp, atime.toPrettyString());
+		assertEquals(milliseconds, atime.getMilliseconds());
+		assertEquals(prettyTimestamp, atime.toString());
 	}
 
 }

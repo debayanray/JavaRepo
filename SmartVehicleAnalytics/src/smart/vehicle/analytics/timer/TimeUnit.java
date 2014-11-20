@@ -2,55 +2,52 @@ package smart.vehicle.analytics.timer;
 
 public class TimeUnit {
 	
-	private long days;
-	private long hours;
-	private long minutes;
-	private long seconds;
-	private long millis;
+	private int whichDay;
+	private int hours;
+	private int minutes;
+	private int seconds;
+	private int milliseconds;
 	private TimeUnitDecorator timeUnitDecorator;
 	
 	public TimeUnit() {
 		timeUnitDecorator = new TimeUnitDecorator(this);
 	}
 
-	public long getDays() {
-		return days;
+	public int getDay() {
+		return whichDay;
 	}
-	public void setDays(long days) {
-		this.days = days;
+	public void setDay(int day) {
+		this.whichDay = day;
 	}
-	public long getHours() {
+	public int getHours() {
 		return hours;
 	}
-	public void setHours(long hours) {
+	public void setHours(int hours) {
 		this.hours = hours;
 	}
-	public long getMinutes() {
+	public int getMinutes() {
 		return minutes;
 	}
-	public void setMinutes(long minutes) {
+	public void setMinutes(int minutes) {
 		this.minutes = minutes;
 	}
-	public long getSeconds() {
+	public int getSeconds() {
 		return seconds;
 	}
-	public void setSeconds(long seconds) {
+	public void setSeconds(int seconds) {
 		this.seconds = seconds;
 	}
-	public long getMillis() {
-		return millis;
+	public int getMilliseconds() {
+		return milliseconds;
 	}
-	public void setMillis(long millis) {
-		this.millis = millis;
-	}
-	
-	public String toPrettyString() {
-		return timeUnitDecorator.toPrettyTimestampString();
+
+	public void setMilliseconds(int milliseconds) {
+		this.milliseconds = milliseconds;
 	}
 	
 	@Override
 	public String toString() {
-		return null;
+		return timeUnitDecorator.toPrettyTimestampString();
 	}
 	
 	
