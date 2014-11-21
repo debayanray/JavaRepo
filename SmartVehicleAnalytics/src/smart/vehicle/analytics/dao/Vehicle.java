@@ -6,9 +6,8 @@ import smart.vehicle.analytics.timer.TimeUnit;
 
 public class Vehicle {
 	
-	/*private String make;
-	private String model;
-	private String registration;*/
+	private static final int MPMS_TO_KMPH_MULTIPLYING_FACTOR = 3600;
+	private static final double AVEARGE_WHEELBASE = 2.5;
 	
 	private String sensorAFrontTouchDown;
 	private String sensorARearTouchDown;
@@ -22,31 +21,11 @@ public class Vehicle {
 	
 	private boolean isNorthBound;
 	private TimeUnit passingTime; // first touch down on sensor A
-	
-	
+	private double speed; // in kph
 	
 	public Vehicle() {
 		
 	}
-
-	/*public String getMake() {
-		return make;
-	}
-	public void setMake(String make) {
-		this.make = make;
-	}
-	public String getModel() {
-		return model;
-	}
-	public void setModel(String model) {
-		this.model = model;
-	}
-	public String getRegistration() {
-		return registration;
-	}
-	public void setRegistration(String registration) {
-		this.registration = registration;
-	}*/
 	
 	public String getSensorAFrontTouchDown() {
 		return sensorAFrontTouchDown;
@@ -55,11 +34,7 @@ public class Vehicle {
 		this.sensorAFrontTouchDown = sensorAFrontTouchDown;
 		this.sensorAFrontTouchDownEpoch = getCorrespondingPremitiveLongValueFrom(this.sensorAFrontTouchDown);
 		
-		try {
-			passingTime = new EpochParser().convert(sensorAFrontTouchDown);
-		} catch (InvalidInputTypeException e) {
-			e.printStackTrace();
-		}
+		setPassingTime();
 	}
 	public String getSensorARearTouchDown() {
 		return sensorARearTouchDown;
@@ -67,6 +42,8 @@ public class Vehicle {
 	public void setSensorARearTouchDown(String sensorARearTouchDown) {
 		this.sensorARearTouchDown = sensorARearTouchDown;
 		this.sensorARearTouchDownEpoch = getCorrespondingPremitiveLongValueFrom(this.sensorARearTouchDown);
+		
+		setSpeed();
 	}
 	public String getSensorBFrontTouchDown() {
 		return sensorBFrontTouchDown;
@@ -85,31 +62,42 @@ public class Vehicle {
 	public long getSensorAFrontTouchDownEpoch() {
 		return sensorAFrontTouchDownEpoch;
 	}
-	
 	public long getSensorARearTouchDownEpoch() {
 		return sensorARearTouchDownEpoch;
 	}
-	
 	public long getSensorBFrontTouchDownEpoch() {
 		return sensorBFrontTouchDownEpoch;
 	}
-	
 	public long getSensorBRearTouchDownEpoch() {
 		return sensorBRearTouchDownEpoch;
 	}
-	
 	public boolean isNorthBound() {
 		return isNorthBound;
 	}
-	
 	public void setNorthBound(boolean isNorthBound) {
 		this.isNorthBound = isNorthBound;
 	}
-	
 	public TimeUnit getPassingTime() {
 		return passingTime;
 	}
-
+	
+	private void setPassingTime() {
+		try {
+			passingTime = new EpochParser().convert(sensorAFrontTouchDown);
+		} catch (InvalidInputTypeException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public double getSpeed() {
+		return speed;
+	}
+	
+	private void setSpeed() {
+		long timeDifference = sensorARearTouchDownEpoch - sensorAFrontTouchDownEpoch;
+		speed = (AVEARGE_WHEELBASE * MPMS_TO_KMPH_MULTIPLYING_FACTOR) / timeDifference;
+	}
+	
 	private long getCorrespondingPremitiveLongValueFrom(String sensorTouchDown) {
 		return Long.valueOf(sensorTouchDown).longValue();
 	}
@@ -118,7 +106,19 @@ public class Vehicle {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(isNorthBound() ? "Northbound " : "Southbound ");
-		sb.append("vehicle - ");
+		sb.append("vehicle");
+		
+		sb.append("(@");
+		sb.append(String.format("%.2f", speed));
+		sb.append(" kph)");
+		
+		return sb.toString(); 
+	}
+	
+	public String toDetailedString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.toString());
+		sb.append(" - ");
 		
 		sb.append("Sensor A [");
 		sb.append(sensorAFrontTouchDown);
@@ -136,6 +136,5 @@ public class Vehicle {
 		
 		return sb.toString(); 
 	}
-	
 	
 }
